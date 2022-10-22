@@ -36,6 +36,7 @@ func TestDefaultConfigurationsShouldBeCorrect(t *testing.T) {
 	repository := aws.GetECRRepo(t, region, expectedName)
 	assert.Equal(t, "AES256", *repository.EncryptionConfiguration.EncryptionType)
 	assert.Equal(t, "IMMUTABLE", *repository.ImageTagMutability)
+
 }
 
 func TestShouldReturnExceptionWithInvalidEncryptionTypeVar(t *testing.T) {
@@ -55,5 +56,23 @@ func TestShouldReturnExceptionWithInvalidEncryptionTypeVar(t *testing.T) {
 	output, err := terraform.InitAndApplyE(t, terraformOptions)
 
 	require.Error(t, err)
-	require.Contains(t, output, "Invalid value for variable")
+	require.Contains(t, output, "The encryption type must be one of: AES256 or KMS.")
+}
+
+func TestShouldReturnExceptionWithInvalidImageTagMutabilityVar(t *testing.T) {
+	t.Parallel()
+
+	expectedName := fmt.Sprintf("test-%d", random.Random(11, 20))
+	terraformOptions := &terraform.Options{
+		TerraformDir: "../",
+		Vars: map[string]interface{}{
+			"name":                 expectedName,
+			"image_tag_mutability": "invalid-type",
+		},
+	}
+
+	output, err := terraform.InitAndApplyE(t, terraformOptions)
+
+	require.Error(t, err)
+	require.Contains(t, output, "The image tag mutability must be one of: MUTABLE or IMMUTABLE")
 }
