@@ -7,13 +7,15 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestDefaultEncryptionTypeConfigurationMustBeAES256(t *testing.T) {
+func TestDefaultConfigurationsShouldBeCorrect(t *testing.T) {
 	t.Parallel()
 
-	expectedName := fmt.Sprintf("test-%d", random.Random(0, 10000))
+	expectedName := fmt.Sprintf("test-%d", random.Random(0, 10))
 
 	region := aws.GetRandomRegion(t, nil, nil)
 
@@ -33,4 +35,25 @@ func TestDefaultEncryptionTypeConfigurationMustBeAES256(t *testing.T) {
 
 	repository := aws.GetECRRepo(t, region, expectedName)
 	assert.Equal(t, "AES256", *repository.EncryptionConfiguration.EncryptionType)
+	assert.Equal(t, "IMMUTABLE", *repository.ImageTagMutability)
+}
+
+func TestShouldReturnExceptionWithInvalidEncryptionTypeVar(t *testing.T) {
+	t.Parallel()
+
+	expectedName := fmt.Sprintf("test-%d", random.Random(11, 20))
+	terraformOptions := &terraform.Options{
+		TerraformDir: "../",
+		Vars: map[string]interface{}{
+			"name": expectedName,
+			"encryption": map[string]string{
+				"type": "invalid-type",
+			},
+		},
+	}
+
+	output, err := terraform.InitAndApplyE(t, terraformOptions)
+
+	require.Error(t, err)
+	require.Contains(t, output, "Invalid value for variable")
 }
