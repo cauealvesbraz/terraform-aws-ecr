@@ -8,6 +8,8 @@ resource "aws_ecr_repository" "this" {
 
   image_tag_mutability = var.image_tag_mutability
 
+  force_delete = var.force_delete
+
   tags = merge(
     var.tags, {
       "managed-by" : "terraform"

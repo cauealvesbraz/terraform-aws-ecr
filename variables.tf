@@ -34,6 +34,12 @@ variable "image_tag_mutability" {
   }
 }
 
+variable "force_delete" {
+  type        = bool
+  default     = false
+  description = "(Optional) If true, will delete the repository even if it contains images. Defaults to false"
+}
+
 variable "tags" {
   type        = map(string)
   default     = {}
