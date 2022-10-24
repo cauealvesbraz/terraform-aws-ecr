@@ -40,6 +40,12 @@ variable "force_delete" {
   description = "(Optional) If true, will delete the repository even if it contains images. Defaults to false"
 }
 
+variable "scan_on_push" {
+  type        = bool
+  default     = true
+  description = "Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). Defauls to true"
+}
+
 variable "tags" {
   type        = map(string)
   default     = {}

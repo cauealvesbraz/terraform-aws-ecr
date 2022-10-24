@@ -34,9 +34,10 @@ func TestDefaultConfigurationsShouldBeCorrect(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	repository := aws.GetECRRepo(t, region, expectedName)
+
 	assert.Equal(t, "AES256", *repository.EncryptionConfiguration.EncryptionType)
 	assert.Equal(t, "IMMUTABLE", *repository.ImageTagMutability)
-
+	assert.True(t, *repository.ImageScanningConfiguration.ScanOnPush)
 }
 
 func TestShouldReturnExceptionWithInvalidEncryptionTypeVar(t *testing.T) {
