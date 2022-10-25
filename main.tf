@@ -16,7 +16,7 @@ resource "aws_ecr_repository" "this" {
 
   tags = merge(
     var.tags, {
-      "managed-by" : "terraform"
+      "ManagedBy" : "Terraform"
     }
   )
 }

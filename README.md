@@ -7,7 +7,7 @@ Terraform module to create AWS ECR resources.
 - Tag image mutability to `IMMUTABLE`.
 - Scanning image on push with `BASIC` mode.
 - Encryption type with `AES256`.
-- Always having a tag called `managed-by` with value `terraform`
+- Always having a tag called `ManagedBy` with value `Terraform`
 
 ## Usage
 
