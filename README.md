@@ -14,13 +14,13 @@ Terraform module to create AWS ECR resources.
 ### Basic Repository
 ```hcl
 module "ecr" {
-  source = "github.com/cauealvesbraz/terraform-aws-ecr"
+  source = "git::git@github.com:cauealvesbraz/terraform-aws-ecr.git?ref=v1.0.0"
 
-  repository_name = "basic-example"
-  
+  name = "basic-repository-example"
+
   force_delete = true
   image_tag_mutability = "MUTABLE"
-  
+
   tags = {
     environment = "dev"
   }
