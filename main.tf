@@ -20,3 +20,19 @@ resource "aws_ecr_repository" "this" {
     }
   )
 }
+
+resource "aws_ecr_registry_scanning_configuration" "this" {
+  count = try(var.registry_scanning_configuration.scan_type, "") == "" ? 0 : 1
+
+  scan_type = var.registry_scanning_configuration.scan_type
+  dynamic "rule" {
+    for_each = var.registry_scanning_configuration.rules
+    content {
+      scan_frequency = rule.value.scan_frequency
+      repository_filter {
+        filter = rule.value.repository_filter.filter
+        filter_type = "WILDCARD"
+      }
+    }
+  }
+}
