@@ -27,6 +27,45 @@ module "ecr" {
 }
 ```
 
+### Registry Scanning Configuration
+
+The `image_scanning_configuration` block supports the following:
+```hcl
+registry_scanning_configuration = object({
+  scan_type = string
+  rules = optional(list(object({
+    scan_frequency = string
+    repository_filter = object({
+      filter = string
+    })
+  })))
+})
+```
+
+The following example shows how to create a repository with registry scanning configuration.
+```hcl
+module "ecr" {
+  source = "git::git@github.com:cauealvesbraz/terraform-aws-ecr.git?ref=v1.0.0"
+
+  name = "basic-repository-example"
+
+  force_delete = true
+  image_tag_mutability = "MUTABLE"
+
+  registry_scanning_configuration = {
+    scan_type = "ENHANCED"
+    rules = [
+      {
+        scan_frequency = "CONTINUOUS_SCAN"
+        repository_filter = {
+          filter = "*"
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Requirements
 
 | Name | Version |
