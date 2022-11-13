@@ -20,3 +20,12 @@ resource "aws_ecr_repository" "this" {
     }
   )
 }
+
+resource "aws_ecr_lifecycle_policy" "this" {
+  count = length(var.lifecycle_policy.rules) > 0 ? 1 : 0
+
+  repository = aws_ecr_repository.this.name
+  policy = jsonencode({
+    "rules" : var.lifecycle_policy.rules
+  })
+}
