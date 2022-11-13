@@ -43,6 +43,8 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_ecr_repository.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_registry_scanning_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
+
 
 ## Inputs
 
@@ -54,7 +56,8 @@ No modules.
 | `image_tag_mutability` | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. | `string` | `"IMMUTABLE"` | no |
 | `force_delete` | If true, will delete the repository even if it contains images. | `boolean` | `false` | no |
 | `scan_on_push` | Indicates whether images are scanned after being pushed to the repository. | `boolean` | `true` | no |
-| `tags` | A map of tags to add to resources | `map(string)` | `true` | no |
+| `registry_scanning_configuration` | The registry scanning configuration | `object` | `object.scan_type = "BASIC"` | no |
+| `tags` | A map of tags to add to resources | `map(string)` | `{}` | no |
 
 
 ## Outputs
