@@ -46,6 +46,93 @@ variable "scan_on_push" {
   description = "Indicates whether images are scanned after being pushed to the repository (true) or not scanned (false). Defauls to true"
 }
 
+## Lifecycle policy
+variable "lifecycle_policy" {
+  type = object({
+    rules = list(object({
+      rulePriority = number
+      description  = optional(string)
+      selection = object({
+        tagStatus     = string
+        countType     = string
+        countNumber   = number
+        countUnit     = string
+        tagPrefixList = optional(list(string))
+      }),
+      action = object({
+        type = string
+      })
+    }))
+  })
+
+  default = {
+    rules = []
+  }
+
+  description = "(Optional) A lifecycle policy for the repository. Default is empty"
+
+  validation {
+    condition = alltrue([
+      for rule in var.lifecycle_policy.rules : contains(
+        ["tagged", "untagged", "any"],
+        rule.selection.tagStatus
+      )
+    ])
+
+    error_message = "The tag status must be one of: tagged, untagged or any."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.lifecycle_policy.rules : contains(
+        ["sinceImagePushed", "sinceImageCreated"],
+        rule.selection.countType
+      )
+    ])
+
+    error_message = "The count type must be one of: sinceImagePushed or sinceImageCreated."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.lifecycle_policy.rules : contains(
+        ["days", "weeks", "months"],
+        rule.selection.countUnit
+      )
+    ])
+
+    error_message = "The count unit must be one of: days, weeks or months."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.lifecycle_policy.rules : rule.selection.countNumber > 0
+    ])
+
+    error_message = "The count number must be greater than 0."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.lifecycle_policy.rules : rule.rulePriority > 0
+    ])
+
+    error_message = "The priority must be greater than 0."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.lifecycle_policy.rules : contains(
+        ["expire"],
+        rule.action.type
+      )
+    ])
+
+    error_message = "The action type must be one of: expire."
+  }
+}
+
+## Tags
 variable "tags" {
   type        = map(string)
   default     = {}
@@ -65,7 +152,7 @@ variable "registry_scanning_configuration" {
 
   default = {
     scan_type = "BASIC"
-    rules = []
+    rules     = []
   }
 
   description = "The registry scanning configuration"

@@ -21,6 +21,15 @@ resource "aws_ecr_repository" "this" {
   )
 }
 
+resource "aws_ecr_lifecycle_policy" "this" {
+  count = length(var.lifecycle_policy.rules) > 0 ? 1 : 0
+
+  repository = aws_ecr_repository.this.name
+  policy = jsonencode({
+    "rules" : var.lifecycle_policy.rules
+  })
+}
+
 resource "aws_ecr_registry_scanning_configuration" "this" {
   count = try(var.registry_scanning_configuration.scan_type, "") == "" ? 0 : 1
 
@@ -30,7 +39,7 @@ resource "aws_ecr_registry_scanning_configuration" "this" {
     content {
       scan_frequency = rule.value.scan_frequency
       repository_filter {
-        filter = rule.value.repository_filter.filter
+        filter      = rule.value.repository_filter.filter
         filter_type = "WILDCARD"
       }
     }
