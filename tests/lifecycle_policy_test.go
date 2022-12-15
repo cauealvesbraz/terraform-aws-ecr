@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -45,28 +46,30 @@ func TestCanCreateRepositoryWithLifecyclePolicyAndTaggedStatus(t *testing.T) {
 
 	region := aws.GetRandomRegion(t, nil, nil)
 
+	lifecyclePolicy := map[string]interface{}{
+		"rules": []map[string]interface{}{
+			{
+				"rulePriority": 1,
+				"description":  "Expire images older than 14 days",
+				"selection": map[string]interface{}{
+					"tagStatus":     "tagged",
+					"countType":     "sinceImagePushed",
+					"countUnit":     "days",
+					"countNumber":   14,
+					"tagPrefixList": []string{"test-repo"},
+				},
+				"action": map[string]interface{}{
+					"type": "expire",
+				},
+			},
+		},
+	}
+
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../",
 		Vars: map[string]interface{}{
-			"name": expectedName,
-			"lifecycle_policy": map[string]interface{}{
-				"rules": []map[string]interface{}{
-					{
-						"rulePriority": 1,
-						"description":  "Expire images older than 14 days",
-						"selection": map[string]interface{}{
-							"tagStatus":     "tagged",
-							"countType":     "sinceImagePushed",
-							"countUnit":     "days",
-							"countNumber":   14,
-							"tagPrefixList": []string{"test-repo"},
-						},
-						"action": map[string]interface{}{
-							"type": "expire",
-						},
-					},
-				},
-			},
+			"name":             expectedName,
+			"lifecycle_policy": lifecyclePolicy,
 		},
 		EnvVars: map[string]string{
 			"AWS_DEFAULT_REGION": region,
@@ -78,8 +81,8 @@ func TestCanCreateRepositoryWithLifecyclePolicyAndTaggedStatus(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	repository := aws.GetECRRepo(t, region, expectedName)
+	currentPolicy := aws.GetECRRepoLifecyclePolicy(t, region, repository)
 
-	assert.Equal(t, "AES256", *repository.EncryptionConfiguration.EncryptionType)
-	assert.Equal(t, "IMMUTABLE", *repository.ImageTagMutability)
-	assert.True(t, *repository.ImageScanningConfiguration.ScanOnPush)
+	lifecyclePolicyJson, _ := json.Marshal(lifecyclePolicy)
+	assert.JSONEq(t, string(lifecyclePolicyJson), currentPolicy)
 }
