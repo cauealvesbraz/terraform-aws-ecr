@@ -27,6 +27,45 @@ module "ecr" {
 }
 ```
 
+### Registry Scanning Configuration
+
+The `image_scanning_configuration` block supports the following:
+```hcl
+registry_scanning_configuration = object({
+  scan_type = string
+  rules = optional(list(object({
+    scan_frequency = string
+    repository_filter = object({
+      filter = string
+    })
+  })))
+})
+```
+
+The following example shows how to create a repository with registry scanning configuration.
+```hcl
+module "ecr" {
+  source = "git::git@github.com:cauealvesbraz/terraform-aws-ecr.git?ref=v1.0.0"
+
+  name = "basic-repository-example"
+
+  force_delete = true
+  image_tag_mutability = "MUTABLE"
+
+  registry_scanning_configuration = {
+    scan_type = "ENHANCED"
+    rules = [
+      {
+        scan_frequency = "CONTINUOUS_SCAN"
+        repository_filter = {
+          filter = "*"
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Requirements
 
 | Name | Version |
@@ -43,6 +82,8 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_ecr_repository.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_repository) | resource |
+| [aws_ecr_registry_scanning_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecr_registry_scanning_configuration) | resource |
+
 
 ## Inputs
 
@@ -54,7 +95,8 @@ No modules.
 | `image_tag_mutability` | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. | `string` | `"IMMUTABLE"` | no |
 | `force_delete` | If true, will delete the repository even if it contains images. | `boolean` | `false` | no |
 | `scan_on_push` | Indicates whether images are scanned after being pushed to the repository. | `boolean` | `true` | no |
-| `tags` | A map of tags to add to resources | `map(string)` | `true` | no |
+| `registry_scanning_configuration` | The registry scanning configuration | `object` | `object.scan_type = "BASIC"` | no |
+| `tags` | A map of tags to add to resources | `map(string)` | `{}` | no |
 
 
 ## Outputs

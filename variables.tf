@@ -51,12 +51,12 @@ variable "lifecycle_policy" {
   type = object({
     rules = list(object({
       rulePriority = number
-      description = optional(string)
+      description  = optional(string)
       selection = object({
-        tagStatus   = string
-        countType   = string
-        countNumber = number
-        countUnit   = string
+        tagStatus     = string
+        countType     = string
+        countNumber   = number
+        countUnit     = string
         tagPrefixList = optional(list(string))
       }),
       action = object({
@@ -137,4 +137,39 @@ variable "tags" {
   type        = map(string)
   default     = {}
   description = "A map of tags to add to resources"
+}
+
+variable "registry_scanning_configuration" {
+  type = object({
+    scan_type = string
+    rules = optional(list(object({
+      scan_frequency = string
+      repository_filter = object({
+        filter = string
+      })
+    })))
+  })
+
+  default = {
+    scan_type = "BASIC"
+    rules     = []
+  }
+
+  description = "The registry scanning configuration"
+
+  validation {
+    condition     = contains(["ENHANCED", "BASIC"], var.registry_scanning_configuration.scan_type)
+    error_message = "The scan type must be one of: ENHANCED or BASIC."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.registry_scanning_configuration.rules : contains(
+        ["SCAN_ON_PUSH", "CONTINUOUS_SCAN", "MANUAL"],
+        rule.scan_frequency
+      )
+    ])
+
+    error_message = "The scan frequency must be one of: SCAN_ON_PUSH, CONTINUOUS_SCAN or MANUAL."
+  }
 }
