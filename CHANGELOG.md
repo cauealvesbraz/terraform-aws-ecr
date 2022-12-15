@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0](https://github.com/cauealvesbraz/terraform-aws-ecr/compare/v1.1.0...v1.2.0) (2022-12-15)
+
+
+### Features
+
+* Add support to lifecycle policy ([#3](https://github.com/cauealvesbraz/terraform-aws-ecr/issues/3)) ([d70289a](https://github.com/cauealvesbraz/terraform-aws-ecr/commit/d70289a011003a7bea118ad6dd406e95e007fff0))
+
 ## [1.1.0](https://github.com/cauealvesbraz/terraform-aws-ecr/compare/v1.0.1...v1.1.0) (2022-11-13)
 
 
